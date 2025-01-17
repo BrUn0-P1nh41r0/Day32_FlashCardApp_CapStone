@@ -4,10 +4,16 @@ import time
 from tkinter import *
 
 BACKGROUND_COLOR = "#B1DDC6"
-
-data = pandas.read_csv("./data/french_words.csv")
-data_dict = data.to_dict(orient="records")
 current_card= {}
+data_dict={}
+
+try:
+    data = pandas.read_csv("./data/Words_to_learn.csv")
+except FileNotFoundError:
+    original_data = pandas.read_csv("./data/french_words.csv")
+    data_dict = original_data.to_dict(orient = "records")
+else:
+    data_dict = data.to_dict(orient="records")
 
 #------------------CSV Read and Word change-------------------------#
 def update_card():
@@ -24,7 +30,12 @@ def show_english():
     canvas.itemconfig(word, text=current_card["English"], fill="white")
     canvas.itemconfig(back_image, image=card_back)
 
-
+#------------------Right and Wrong scenarios-------------------------#
+def is_known():
+    data_dict.remove(current_card)
+    to_learn = pandas.DataFrame(data_dict)
+    to_learn.to_csv("./data/Words_to_learn.csv", index=False)
+    update_card()
 #------------------UI configuration-------------------------#
 
 #Window
@@ -50,7 +61,7 @@ canvas.grid(column=0, row=0, columnspan=2)
 wrong_button = Button(image=wrong, highlightthickness=0, bg=BACKGROUND_COLOR, command=update_card)
 wrong_button.grid(column=0,row=1)
 
-right_button = Button(image=right, highlightthickness=0, bg=BACKGROUND_COLOR, command=update_card)
+right_button = Button(image=right, highlightthickness=0, bg=BACKGROUND_COLOR, command=is_known)
 right_button.grid(column=1,row=1)
 
 update_card()
